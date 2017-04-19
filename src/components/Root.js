@@ -8,7 +8,7 @@ import {Menu, Button} from 'semantic-ui-react';
 import LoginDialog from './../components/LoginDialog';
 import MovieList from './../components/MovieList';
 import Checkout from './../components/Checkout';
-import PurchasePage from './../components/PurchasePage';
+import PurchasePage from './../containers/PurchasePage';
 
 class Root extends Component {
   constructor (props) {

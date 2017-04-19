@@ -10,18 +10,19 @@ import {
   Dimmer,
   Loader
 } from 'semantic-ui-react';
-import { connect } from 'react-redux'
-import { getMovie } from '../actions/movies'
-import BuyButton from './buttons/BuyButton';
-import Price from './utils/Price';
+import {connect} from 'react-redux';
+import {getMovie} from '../actions/movies';
+import {addOrder} from '../actions/orders';
+import BuyButton from './../components/buttons/BuyButton';
+import Price from './../components/utils/Price';
 
 class PurchasePage extends Component {
   constructor (props) {
     super(props);
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleBuy = this.handleBuy.bind(this);
 
-    // TODO 2: use mapStateToProps function from Redux to pass data into props instead of state
     this.state = {
       noOfTickets: 1
     };
@@ -37,8 +38,16 @@ class PurchasePage extends Component {
   }
 
   handleBuy () {
-    // TODO 3: call Redux action that calls REST API (POST /orders) to save order
-    // then you can redirect to homepage by calling this.props.history.push('/');
+    const {
+      movie,
+      onAddOrder,
+      history
+    } = this.props;
+
+    onAddOrder(
+      {movieId: movie.id, noOfTickets: this.state.noOfTickets},
+      history
+    );
   }
 
   getImageSrc () {
@@ -67,7 +76,8 @@ class PurchasePage extends Component {
   render () {
     const {
       isLoading,
-      movie
+      movie,
+      canBuyTickets
     } = this.props;
     const {
       noOfTickets
@@ -92,20 +102,20 @@ class PurchasePage extends Component {
           <Grid>
             <Grid.Column width={4}>
               <Image
-                src={this.getImageSrc()} />
+                src={this.getImageSrc()}/>
             </Grid.Column>
             <Grid.Column width={8}>
               {this.getDescription()}
             </Grid.Column>
             <Grid.Column width={4}>
               <div>
-                <Input
+                {canBuyTickets ? <Input
                   value={noOfTickets}
                   onChange={this.handleChange}
                   size='mini'
                   action={<BuyButton onClick={this.handleBuy}/>}
                   type='number'
-                />
+                /> : 'Log-in to buy tickets'}
               </div>
               <Divider hidden/>
               <div>
@@ -125,17 +135,25 @@ PurchasePage.propTypes = {
     params: PropTypes.shape({
       id: PropTypes.string.isRequired
     }).isRequired
-  }).isRequired
+  }).isRequired,
+  movie: PropTypes.object,
+  error: PropTypes.string,
+  isLoading: PropTypes.bool,
+  canBuyTickets: PropTypes.bool,
+  getMovie: PropTypes.func,
+  onAddOrder: PropTypes.func
 };
 
 const mapStateToProps = (state) => ({
   isLoading: state.movies.isLoading,
   movie: state.movies.movie,
   error: state.movies.error,
+  canBuyTickets: Boolean(state.login.user)
 });
 
 const mapDispatchToProps = {
-  getMovie
+  getMovie,
+  onAddOrder: addOrder
 };
 
 export default connect(
