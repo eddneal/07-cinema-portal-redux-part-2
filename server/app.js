@@ -8,6 +8,7 @@ const low = require('lowdb');
 const fileAsync = require('lowdb/lib/storages/file-async');
 const movies = require('./data/movies');
 const users = require('./data/users');
+const comments = require('./data/comments');
 const cookieSession = require('cookie-session');
 
 const app = express();
@@ -20,6 +21,12 @@ const isLoggedIn = (req, res, next) => {
   }
 
   next(new Error('User is not logged in.'));
+};
+
+const getMovie = (movieId) => {
+  return db.get('movies')
+    .find({id: movieId})
+    .value();
 };
 
 app.use(morgan('dev'));
@@ -83,15 +90,27 @@ app.get('/movies', function (req, res, next) {
 });
 
 app.get('/movies/:id', (req, res) => {
-  const movie = db.get('movies')
-    .find({id: +req.params.id})
-    .value();
+  const movie = getMovie(+req.params.id);
 
   if (!movie) {
-    res.status(404).send({error: {message: 'Movie not found'}});
+    return res.status(404).send({error: {message: 'Movie not found'}});
   }
 
   setTimeout(() => res.send(movie), 1000);
+});
+
+app.get('/movies/:id/comments', function (req, res) {
+  const movie = getMovie(+req.params.id);
+
+  if (!movie) {
+    return res.status(404).send({error: {message: 'Invalid movieId - not found'}});
+  }
+
+  const comments = db
+    .get('comments')
+    .filter((c) => c.movieId === movie.id)
+    .value();
+  res.send(comments);
 });
 
 app.get('/orders', isLoggedIn, (req, res) => {
@@ -181,7 +200,7 @@ app.use(function (err, req, res, next) {
     });
 });
 
-db.defaults({movies, orders: {}, users})
+db.defaults({movies, orders: {}, users, comments})
   .write()
   .then(() => {
     app.listen(5000, () => console.log('Server is listening'))
