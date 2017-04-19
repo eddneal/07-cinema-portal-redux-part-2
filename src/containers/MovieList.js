@@ -1,48 +1,22 @@
 import React, {Component} from 'react';
-import MovieItem from './MovieItem';
+import {connect} from 'react-redux';
+import MovieItem from './../components/MovieItem';
 import {Item, Container, Message, Button, Grid} from 'semantic-ui-react';
-import axios from './../api/axios';
+import {getAllMovies} from './../actions/movies';
 
 class MovieList extends Component {
   constructor (props) {
     super(props);
 
     this.handleReload = this.handleReload.bind(this);
-
-    this.state = {
-      movies: [],
-      error: null,
-      isLoading: false
-    };
   }
 
   componentDidMount () {
-    this.loadMovies();
+    this.props.getAllMovies();
   }
 
   handleReload () {
-    this.loadMovies();
-  }
-
-  loadMovies () {
-    this.setState({isLoading: true});
-
-    // called on success response from the server
-    const onSuccess = (response) => {
-      const movies = response.data;
-
-      this.setState({movies, isLoading: false, error: null});
-    };
-
-    // called when request fails
-    const onReject = (response) => {
-      const error = response.data && response.data.error
-        ? response.data.error.message
-        : 'Unknown server error';
-      this.setState({error, isLoading: false, movies: []})
-    };
-
-    axios.get('/movies').then(onSuccess, onReject);
+    this.props.getAllMovies(true);
   }
 
   renderMovies (movie) {
@@ -56,7 +30,7 @@ class MovieList extends Component {
       movies,
       error,
       isLoading
-    } = this.state;
+    } = this.props; // TODO "isLoading" & "error" not implemented correctly, fix it
 
     if (error) {
       return (
@@ -83,4 +57,12 @@ class MovieList extends Component {
   }
 }
 
-export default MovieList;
+const mapStateToProps = (state) => ({
+  movies: state.movies.movies
+});
+
+const mapDispatchToProps = {
+  getAllMovies
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(MovieList);

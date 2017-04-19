@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 import {Menu, Button} from 'semantic-ui-react';
 import LoginDialog from './../components/LoginDialog';
-import MovieList from './../components/MovieList';
+import MovieList from './../containers/MovieList';
 import Checkout from './../components/Checkout';
 import PurchasePage from './../containers/PurchasePage';
 

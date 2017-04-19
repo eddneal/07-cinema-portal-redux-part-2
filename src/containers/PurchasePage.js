@@ -146,7 +146,7 @@ PurchasePage.propTypes = {
 
 const mapStateToProps = (state) => ({
   isLoading: state.movies.isLoading,
-  movie: state.movies.movie,
+  movie: state.movies.movies.find(m => m.id === state.movies.displayedMovieId),
   error: state.movies.error,
   canBuyTickets: Boolean(state.login.user)
 });

@@ -71,7 +71,13 @@ app.get('/movies', function (req, res, next) {
     return next(new Error('Ooops, server is down, panic NOW!'));
   }
 
-  const movies = db.get('movies');
+  let movies = db.get('movies');
+
+  if (req.query.search) {
+    movies = movies.filter(
+      movie => movie.title.toLowerCase().includes(req.query.search.toLowerCase())
+    );
+  }
 
   res.send(movies);
 });
